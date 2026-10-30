@@ -100,6 +100,7 @@ def get_open_positions():
                 "name": account_dict.get("name"),
                 "server": account_dict.get("server"),
                 "currency": currency,
+                "currency_digits": account_dict.get("currency_digits", 2),
                 "is_cent": is_cent,
                 "balance": account_dict.get("balance"),
                 "equity": account_dict.get("equity"),

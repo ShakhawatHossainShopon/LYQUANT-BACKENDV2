@@ -1,5 +1,6 @@
 import MetaTrader5 as mt5
 from services.mt5_service import get_account
+from services.position_service import _calc_volume_usd
 
 
 def get_account_details():
@@ -17,25 +18,13 @@ def get_account_details():
         total_volume_usd = 0.0
 
         for position in positions:
-            symbol_info = mt5.symbol_info(position.symbol)
-            tick = mt5.symbol_info_tick(position.symbol)
-
-            if symbol_info is None or tick is None:
-                continue
-
-            price = tick.bid if position.type == mt5.POSITION_TYPE_BUY else tick.ask
-
-            position_value = (
-                position.volume
-                * symbol_info.trade_contract_size
-                * price
-            )
-
+            price = getattr(position, "price_current", getattr(position, "price_open", 0.0))
+            position_value = _calc_volume_usd(position.symbol, float(position.volume), price)
             total_volume_usd += position_value
 
         account["trading_volume"] = round(total_volume_usd, 2)
+        account["cfd_exposure_usd"] = round(total_volume_usd, 2)
         account["total_positions"] = len(positions)
-        
 
         return account
 
